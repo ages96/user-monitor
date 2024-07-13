@@ -30,18 +30,9 @@ class DailySummaryJob implements ShouldQueue
             $femaleCount = User::where('gender', 'female')->count();
         }
 
-        // Fetch average ages from Redis
-        $maleAvgAge = Redis::get('male_avg_age');
-        $femaleAvgAge = Redis::get('female_avg_age');
-
         // If average ages are null, calculate from database
-        if (!$maleAvgAge) {
-            $maleAvgAge = User::where('gender', 'male')->avg('age') ?? 0;
-        }
-
-        if (!$femaleAvgAge) {
-            $femaleAvgAge = User::where('gender', 'female')->avg('age') ?? 0;
-        }
+        $maleAvgAge = User::where('gender', 'male')->avg('age') ?? 0;
+        $femaleAvgAge = User::where('gender', 'female')->avg('age') ?? 0;
 
         // Create the daily record
         $dailyRecord = DailyRecord::create([
@@ -55,7 +46,5 @@ class DailySummaryJob implements ShouldQueue
         // Reset Redis counts and average ages for the next day
         Redis::set('male_count', 0);
         Redis::set('female_count', 0);
-        Redis::set('male_avg_age', 0);
-        Redis::set('female_avg_age', 0);
     }
 }
