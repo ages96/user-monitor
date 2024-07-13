@@ -18,33 +18,52 @@ class DailySummaryJob implements ShouldQueue
     public function handle()
     {
         // Fetch counts from Redis
-        $maleCount = Redis::get('male_count');
-        $femaleCount = Redis::get('female_count');
+        $maleCountRedis = Redis::get('male_count');
+        $femaleCountRedis = Redis::get('female_count');
 
-        // If counts are null or zero, fetch from database
-        if (!$maleCount) {
-            $maleCount = User::where('gender', 'male')->count();
+        // Fetch counts from database
+        $maleCountDB = User::where('gender', 'male')->count();
+        $femaleCountDB = User::where('gender', 'female')->count();
+
+        // Update Redis if counts are different
+        if ($maleCountRedis != $maleCountDB) {
+            Redis::set('male_count', $maleCountDB);
         }
 
-        if (!$femaleCount) {
-            $femaleCount = User::where('gender', 'female')->count();
+        if ($femaleCountRedis != $femaleCountDB) {
+            Redis::set('female_count', $femaleCountDB);
         }
 
-        // If average ages are null, calculate from database
-        $maleAvgAge = User::where('gender', 'male')->avg('age') ?? 0;
-        $femaleAvgAge = User::where('gender', 'female')->avg('age') ?? 0;
+        // Fetch average ages from Redis
+        $maleAvgAgeRedis = Redis::get('male_avg_age');
+        $femaleAvgAgeRedis = Redis::get('female_avg_age');
+
+        // Fetch average ages from database
+        $maleAvgAgeDB = User::where('gender', 'male')->avg('age') ?? 0;
+        $femaleAvgAgeDB = User::where('gender', 'female')->avg('age') ?? 0;
+
+        // Update Redis if average ages are different
+        if ($maleAvgAgeRedis != $maleAvgAgeDB) {
+            Redis::set('male_avg_age', $maleAvgAgeDB);
+        }
+
+        if ($femaleAvgAgeRedis != $femaleAvgAgeDB) {
+            Redis::set('female_avg_age', $femaleAvgAgeDB);
+        }
 
         // Create the daily record
         $dailyRecord = DailyRecord::create([
-            'date' => date('Y-m-d'),
-            'male_count' => $maleCount,
-            'female_count' => $femaleCount,
-            'male_avg_age' => $maleAvgAge,
-            'female_avg_age' => $femaleAvgAge,
+            'date' => now()->toDateString(),
+            'male_count' => $maleCountDB,
+            'female_count' => $femaleCountDB,
+            'male_avg_age' => $maleAvgAgeDB,
+            'female_avg_age' => $femaleAvgAgeDB,
         ]);
 
         // Reset Redis counts and average ages for the next day
-        Redis::set('male_count', 0);
-        Redis::set('female_count', 0);
+        Redis::set('male_count', $maleCountDB);
+        Redis::set('female_count', $femaleCountDB);
+        Redis::set('male_avg_age', $maleAvgAgeDB);
+        Redis::set('female_avg_age', $femaleAvgAgeDB);
     }
 }
