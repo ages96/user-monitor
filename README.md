@@ -6,11 +6,17 @@ User Monitor System is developed using Laravel 11 on Ubuntu Linux. It includes t
 
 ## Pages
 
+- **Home Page**: Home page.
+  - URL : [http://localhost:8000]
+  ![Home Page](public/uploads/home.png)
+
 - **User Page**: Displays a list of users.
   - URL: [http://localhost:8000/users](http://localhost:8000/users)
+  ![Home Page](public/uploads/users.png)
 
 - **Daily Records Page**: Shows daily records.
   - URL: [http://localhost:8000/daily-records](http://localhost:8000/daily-records)
+  ![Home Page](public/uploads/daily_records.png)
 
 ## Cron Job
 
