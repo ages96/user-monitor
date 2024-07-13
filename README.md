@@ -53,7 +53,8 @@ Schedule::command('daily:summary')->dailyAt('23:59');
 
 ### Start Laravel Development Server:
 
-1. Open your terminal and navigate to your project directory.
+1. Open your terminal, navigate to your project directory, and configure Redis and the database in your `.env` file based on `.env.example`.
+
 2. Migrate your Laravel application to create necessary tables:
   
     ```bash
